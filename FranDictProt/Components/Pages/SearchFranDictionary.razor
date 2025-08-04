@@ -1,0 +1,159 @@
+﻿@using Microsoft.AspNetCore.Components.Web
+@rendermode RenderMode.InteractiveServer
+@inject IControl Control
+@using System.Timers;
+
+
+<FluentSearch @ref=searchTest
+              @bind-Value="SearchValue"
+              @bind-Value:after="HandleClear"
+              @oninput="@(e =>
+                        {
+                            SearchValue = e.Value?.ToString();
+                            Search();
+                        })"
+              style="width: 100%;"
+              Placeholder="Enter a partial russian world" />
+
+<br />
+
+<FluentListbox aria-label="search results" Items=@searchResults TOption="string" 
+               SelectedOptionChanged="@(e =>
+                                      {
+                                          SearchValue = (e != defaultResultsText ? e : string.Empty);
+                                          Search();
+                                      })" />
+
+<br />
+
+@if (_pars.Count > 0)
+{
+    <table>
+        <tr>
+            <p>  </p>
+        </tr>
+        @foreach (var par in _pars)
+        {
+            @foreach (var p in par.Paragraphs!)
+            {
+                <tr>
+                    <td>@((MarkupString)p.ParagraphStr!)</td>
+                </tr>
+            }
+        }
+    </table>
+}
+    
+@code {
+    
+    //on fluent search for word
+    private Timer? timer = null;
+
+    private FluentSearch? searchTest;
+
+    private string? searchValue = string.Empty;
+    
+    private string? SearchValue
+    {
+        get => searchValue;
+        set
+        {
+            if (value != searchValue)
+            {
+                searchValue = value;
+                DisposeTimer();
+                //ShowMessageBar debounce time in ms to the timer below
+                timer = new Timer(400);
+                timer.Elapsed += TimerElapsed_TickAsync;
+                timer.Enabled = true;
+                timer.Start();
+            }
+        }
+    }
+    
+    private List<string> searchResults = defaultResults();
+
+    private static string defaultResultsText = "No results";
+
+    private static List<string> defaultResults()
+    {
+        return new() { defaultResultsText };
+    }
+
+    private async void TimerElapsed_TickAsync(object? sender, EventArgs e)
+    {
+        DisposeTimer();
+        await InvokeAsync(OnSearch);
+    }
+    
+    private void DisposeTimer()
+    {
+        if (timer != null)
+        {
+            timer.Enabled = false;
+            timer.Elapsed -= TimerElapsed_TickAsync;
+            timer.Dispose();
+            timer = null;
+        }
+    }
+
+    private void OnSearch()
+    {
+        if (!string.IsNullOrWhiteSpace(SearchValue))
+        {
+            string searchTerm = SearchValue.ToLower();
+
+            //You can also call an API here if the list is not local
+            List<string> temp = Control.FindWord(searchTerm); 
+                //searchData.Where(str => str.ToLower().Contains(searchTerm)).Select(str => str).ToList();
+            if (temp.Any()) //temp.Count() > 0
+            {
+                searchResults = temp;
+            }
+            else
+            {
+                searchResults = defaultResults();
+            }
+            StateHasChanged();
+        }
+        else
+        {
+            searchResults = defaultResults();
+            StateHasChanged();
+        }
+    }
+    
+    private void HandleClear()
+    {
+        if (string.IsNullOrWhiteSpace(SearchValue))
+        {
+            _pars = [];
+            return;
+        }
+
+        DisposeTimer();
+        searchResults = defaultResults();
+        SearchValue = string.Empty;
+        //_pars = [];
+        StateHasChanged();
+    }
+    
+    //my search in base
+    //public string SearchStr = string.Empty;
+
+    private List<FullParagraph> _pars = [];
+
+    public void Search()
+    {
+        _pars = [];
+        
+        string wr = SearchValue!;
+
+        if (!string.IsNullOrEmpty(wr))
+        {
+            var r = Control.FindParagraphs(wr);
+            _pars = r;
+        }
+    }
+}
+
