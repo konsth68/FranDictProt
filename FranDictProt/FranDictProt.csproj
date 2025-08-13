@@ -14,4 +14,10 @@
     <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.12.1" />
     <PackageReference Include="Nestor" Version="0.5.2" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="FranDict.db">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

@@ -9,8 +9,9 @@ public static class Connection
 {
     public static IDbConnection? GetConnection()
     {
-        string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        string path = appData + "\\FranDict\\FranDict.db";
+        //string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        //string path = appData + "\\FranDict\\FranDict.db";
+        string path = ".\\FranDict.db";
         string conn = $"Data Source={path}; Mode=ReadOnly";
 
         if (conn != string.Empty)
