@@ -1,5 +1,6 @@
 using FranDictProt.Components;
 using Microsoft.FluentUI.AspNetCore.Components;
+using static System.Net.WebRequestMethods;
 
 namespace FranDictProt
 {
@@ -20,7 +21,12 @@ namespace FranDictProt
 
             builder.Services.AddTransient<IControl,Control>();
 
-            
+            builder.WebHost.UseUrls("http://0.0.0.0:5000");
+            //builder.Services.AddHttpsRedirection(options =>
+            //{
+            //    options.HttpsPort = 5000; // Or your specific HTTPS port
+            //});
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

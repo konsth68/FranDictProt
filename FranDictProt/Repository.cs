@@ -11,7 +11,8 @@ public static class Connection
     {
         //string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         //string path = appData + "\\FranDict\\FranDict.db";
-        string path = ".\\FranDict.db";
+        //string path = ".\\FranDict.db";
+        string path = "/var/www/franch/FranDict.db";
         string conn = $"Data Source={path}; Mode=ReadOnly";
 
         if (conn != string.Empty)
