@@ -92,11 +92,15 @@ public class Control : IControl
 
     private Paragraph FillPlaceholders(Paragraph par)
     {
-        if (par.ParagraphStr!= null && par.ParagraphStr.Contains("&Tilde;"))
+        if (par.ParagraphStr != null && par.ParagraphStr.Contains("&Tilde; "))
+        {
+            par.ParagraphStr = par.ParagraphStr.Replace("&Tilde;", par.Word);
+        }
+        else if(par.ParagraphStr != null && par.ParagraphStr.Contains("&Tilde;"))
         {
             par.ParagraphStr = par.ParagraphStr.Replace("&Tilde;", par.ReplaceStr);
         }
-        
+
         return par;
     }
     
