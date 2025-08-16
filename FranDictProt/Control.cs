@@ -16,6 +16,8 @@ public interface IControl
     public List<FullParagraph> FindParagraphsFromMorph(string partialWord);
     
     public List<FullParagraph> FindParagraphs(string partialWord);
+
+    public List<DisplayMorphlogy> GetAllMorph(string word);
     
 }
 
@@ -145,6 +147,14 @@ public class Control : IControl
         {
             return r.OrderBy(a => a.Word).ToList();       
         }
+    }
+
+    public List<DisplayMorphlogy> GetAllMorph(string word)
+    {
+       
+        var r = _morph.GetAllMorph(word);
+        
+        return r;
     }
     
 }

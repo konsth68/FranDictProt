@@ -38,21 +38,37 @@
             {
                 <tr>
                     <td>@((MarkupString)p.ParagraphStr!)</td>
+                    <td><FluentButton Appearance="Appearance.Accent" OnClick="@PrintAllMorph">Morf</FluentButton>@{MorfWord = p.Word;}</td>
                 </tr>
+                @if (MorfShow == true)
+                {
+                    <tr>
+                        
+                        @foreach (var m in MorfList)
+                        {
+                        <tr>
+                            <td>
+                                <FluentBadge Appearance="Appearance.Accent">@(m.Word)</FluentBadge>
+                                <FluentBadge Appearance="Appearance.Lightweight"> @m.Info</FluentBadge> 
+                            </td>
+                        </tr>
+                    }
+                    </tr>
+                }
             }
         }
     </table>
 }
     
 @code {
-    
+
     //on fluent search for word
     private Timer? timer = null;
 
     private FluentSearch? searchTest;
 
     private string? searchValue = string.Empty;
-    
+
     private string? SearchValue
     {
         get => searchValue;
@@ -70,10 +86,19 @@
             }
         }
     }
-    
+
     private List<string> searchResults = defaultResults();
 
     private static string defaultResultsText = "No results";
+
+
+    private string MorfWord = string.Empty;
+
+    private bool MorfShow = false;
+
+    private List<DisplayMorphlogy> MorfList = [];
+
+
 
     private static List<string> defaultResults()
     {
@@ -85,7 +110,7 @@
         DisposeTimer();
         await InvokeAsync(OnSearch);
     }
-    
+
     private void DisposeTimer()
     {
         if (timer != null)
@@ -105,7 +130,7 @@
 
             //You can also call an API here if the list is not local
             List<string> temp = Control.FindWord(searchTerm); 
-                //searchData.Where(str => str.ToLower().Contains(searchTerm)).Select(str => str).ToList();
+            //searchData.Where(str => str.ToLower().Contains(searchTerm)).Select(str => str).ToList();
             if (temp.Any()) //temp.Count() > 0
             {
                 searchResults = temp;
@@ -122,12 +147,13 @@
             StateHasChanged();
         }
     }
-    
+
     private void HandleClear()
     {
         if (string.IsNullOrWhiteSpace(SearchValue))
         {
             _pars = [];
+            MorfShow = false;
             return;
         }
 
@@ -137,7 +163,7 @@
         //_pars = [];
         StateHasChanged();
     }
-    
+
     //my search in base
     //public string SearchStr = string.Empty;
 
@@ -146,14 +172,29 @@
     public void Search()
     {
         _pars = [];
-        
+
         string wr = SearchValue!;
 
         if (!string.IsNullOrEmpty(wr))
         {
+            MorfShow = false;
             var r = Control.FindParagraphs(wr);
             _pars = r;
         }
+    }
+
+    public void PrintAllMorph()
+    {
+        if(MorfShow == true)
+        {
+            MorfShow = false;
+        }
+        else
+        {
+            MorfShow = true;
+        }
+
+        MorfList = Control.GetAllMorph(MorfWord);
     }
 }
 
