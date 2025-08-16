@@ -34,13 +34,19 @@
         </tr>
         @foreach (var par in _pars)
         {
-            @foreach (var p in par.Paragraphs!)
+            @foreach (var p in par.Paragraph!.Paragraphs!)
             {
+                var currw = par;
                 <tr>
-                    <td>@((MarkupString)p.ParagraphStr!)</td>
-                    <td><FluentButton Appearance="Appearance.Accent" OnClick="@PrintAllMorph">Morf</FluentButton>@{MorfWord = p.Word;}</td>
+                    <td>@((MarkupString)p.ParagraphStr!) </td>
+                    
+                    @if (par.DisplayButton == true)
+                    {
+                        <td> </td>
+                        <td><FluentButton Appearance="Appearance.Accent" onclick="() => PrintAllMorph(currw)"> Morf </FluentButton></td>
+                    }
                 </tr>
-                @if (MorfShow == true)
+                @if (currw.DisplayMorph == true)
                 {
                     <tr>
                         
@@ -61,6 +67,13 @@
 }
     
 @code {
+
+    public class DisplayFullParagraph
+    {
+        public FullParagraph? Paragraph { get; set; }
+        public bool DisplayButton { get; set; } = false;
+        public bool DisplayMorph { get; set; } = false;
+    }
 
     //on fluent search for word
     private Timer? timer = null;
@@ -167,7 +180,7 @@
     //my search in base
     //public string SearchStr = string.Empty;
 
-    private List<FullParagraph> _pars = [];
+    private List<DisplayFullParagraph> _pars = [];
 
     public void Search()
     {
@@ -178,23 +191,30 @@
         if (!string.IsNullOrEmpty(wr))
         {
             MorfShow = false;
-            var r = Control.FindParagraphs(wr);
-            _pars = r;
+            var rr = Control.FindParagraphs(wr);
+            foreach(var fp in rr)
+            {
+                var p = new DisplayFullParagraph();
+                p.Paragraph = fp;
+                p.DisplayButton = true;
+                p.DisplayMorph = false;
+                _pars.Add(p);
+            }
         }
     }
 
-    public void PrintAllMorph()
+    public void PrintAllMorph(DisplayFullParagraph par)
     {
-        if(MorfShow == true)
+        if(par.DisplayMorph == true)
         {
-            MorfShow = false;
+            par.DisplayMorph = false;
         }
         else
         {
-            MorfShow = true;
+            par.DisplayMorph = true;
         }
 
-        MorfList = Control.GetAllMorph(MorfWord);
+        MorfList = Control.GetAllMorph( par.Paragraph.Word );
     }
 }
 
